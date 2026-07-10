@@ -177,7 +177,7 @@
 
   <button class="btn-download" id="btnDownload" onclick="downloadFile()">
     <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    Download ETI file
+    Download ACM file
   </button>
 
   <div class="footer">
@@ -258,7 +258,7 @@ function excelSerialToDate(serial) {
 
 // Check if a value looks like an Excel date serial (dates in OSADI range: 2020-2030 = serials ~43831-48622)
 function isDateSerial(val) {
-  return typeof val === 'number' && val > 43000 && val < 55000 && Math.floor(val) !== val || 
+  return typeof val === 'number' && val > 43000 && val < 55000 && Math.floor(val) !== val ||
          typeof val === 'number' && val > 43000 && val < 55000 && val === Math.floor(val);
 }
 
@@ -446,7 +446,7 @@ function downloadFile() {
   const dates = parsedRecords.map(r=>r.dateStr).sort();
   const from  = dates[0] ? dates[0].replace(/-/g,'') : 'FROM';
   const to    = dates[dates.length-1] ? dates[dates.length-1].replace(/-/g,'') : 'TO';
-  XLSX.writeFile(outputWb, 'ATTENDANCE_ETI_' + from + '-' + to + '.xlsx');
+  XLSX.writeFile(outputWb, 'ATTENDANCE_ACM_' + from + '-' + to + '.xlsx');
 }
 </script>
 </body>
