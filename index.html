@@ -330,7 +330,7 @@ function getLeave(code, dayType) {
 
 function processRows(rows) {
   const records = [];
-  let empNo = null, empName = null;
+  let empNo = null, empName = null, empDept = null;
   const DAY_TYPES = ['N','OD','RD','ABS'];
 
   for (let i = 0; i < rows.length; i++) {
@@ -343,6 +343,7 @@ function processRows(rows) {
     const raw9 = row[9];
     const raw10 = row[10];
     const raw12 = row[12];
+    const raw24 = row[24];
     const raw28 = row[28];
     const raw29 = row[29];
     const raw41 = row[41];
@@ -363,6 +364,8 @@ function processRows(rows) {
     if (isEmpRow) {
       empNo = s0;
       empName = String(raw3).trim();
+      // col24 holds the department, e.g. "119904 MATERIALS-W/HOUSE & SHIPPING"
+      empDept = raw24 ? String(raw24).trim() : '';
     } else if (isDataRow && empNo) {
       const dateStr = serialToDateStr(Math.floor(raw0));
       if (!dateStr) continue;
@@ -395,7 +398,7 @@ function processRows(rows) {
         : '';
 
       records.push({
-        empNo, empName, dateStr,
+        empNo, empName, empDept, dateStr,
         day: getDayAbbr(dateStr),
         leaveType: getLeave(leaveCode, dt),
         shfType: getShfType(dt, shift),
@@ -429,14 +432,14 @@ function processRows(rows) {
 }
 
 function buildWorkbook(records) {
-  const headers = ['EMP ID','EMP NAME','Date','Day','Lvetype','Shf.Type','In','Out','OT Hours'];
+  const headers = ['EMP ID','EMP NAME','Department','Date','Day','Lvetype','Shf.Type','In','Out','OT Hours'];
   const data = [headers, ...records.map(r=>[
-    r.empNo, r.empName, r.dateStr, r.day,
+    r.empNo, r.empName, r.empDept, r.dateStr, r.day,
     r.leaveType, r.shfType, r.timeIn, r.timeOut, r.otHours
   ])];
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(data);
-  ws['!cols'] = [{wch:12},{wch:32},{wch:14},{wch:6},{wch:18},{wch:14},{wch:12},{wch:12},{wch:12}];
+  ws['!cols'] = [{wch:12},{wch:32},{wch:36},{wch:14},{wch:6},{wch:18},{wch:14},{wch:12},{wch:12},{wch:12}];
   XLSX.utils.book_append_sheet(wb, ws, 'Data');
   outputWb = wb;
 }
