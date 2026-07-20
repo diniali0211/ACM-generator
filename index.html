@@ -313,25 +313,31 @@ function getDayAbbr(dateStr) {
 }
 
 function getShfType(dayType, shift) {
+  const dt = (dayType||'').toUpperCase();
   const s = (shift||'').toUpperCase();
-  if (dayType==='OD') return 'Offday';
-  if (dayType==='RD') return 'Restday';
+  // dayType can be compound, e.g. "PH/OD" or "PH/RD" — check by substring
+  if (dt.includes('OD')) return 'Offday';
+  if (dt.includes('RD')) return 'Restday';
+  if (dt === 'PH') return 'Holiday';
   if (s.includes('NITE')||s.includes('NIGHT')||s.includes('N2')) return 'Night';
   return 'Morning';
 }
 
 function getLeave(code, dayType) {
-  if (!code) code = '';
-  const c = String(code).trim().toUpperCase();
-  if (c==='NPL') return 'Unpaid Leave';
-  if (c==='AL' || dayType==='ABS') return 'Absent';
+  const c = String(code||'').trim().toUpperCase();
+  const dt = String(dayType||'').trim().toUpperCase();
+  if (c === 'NPL') return 'Unpaid Leave';
+  if (c === 'AL') return 'Annual Leave';
+  if (dt === 'ABS') return 'Absent';
+  if (dt === 'PH') return 'Public Holiday';
+  // Unrecognized leave code — show it as-is instead of silently dropping it
+  if (c) return c;
   return '';
 }
 
 function processRows(rows) {
   const records = [];
   let empNo = null, empName = null, empDept = null;
-  const DAY_TYPES = ['N','OD','RD','ABS'];
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
@@ -359,7 +365,9 @@ function processRows(rows) {
     // col0 is an Excel date serial (integer, in plausible date range)
     const isDateCol0 = isDateSerial(raw0);
     const dt = raw9 ? String(raw9).trim().toUpperCase() : '';
-    const isDataRow = isDateCol0 && DAY_TYPES.includes(dt);
+    // Accept any non-empty Day Type code (N, OD, RD, ABS, PH, PH/OD, PH/RD, etc.)
+    // instead of a fixed whitelist, so no attendance day silently disappears.
+    const isDataRow = isDateCol0 && dt.length > 0;
 
     if (isEmpRow) {
       empNo = s0;
