@@ -315,10 +315,11 @@ function getDayAbbr(dateStr) {
 function getShfType(dayType, shift) {
   const dt = (dayType||'').toUpperCase();
   const s = (shift||'').toUpperCase();
-  // dayType can be compound, e.g. "PH/OD" or "PH/RD" — check by substring
+  // Any PH-tagged day (PH, PH/OD, PH/RD, etc.) is labeled Holiday, checked before OD/RD
+  if (dt === 'PH' || dt.startsWith('PH/')) return 'Holiday';
+  // dayType can be compound, e.g. "XX/OD" or "XX/RD" — check by substring
   if (dt.includes('OD')) return 'Offday';
   if (dt.includes('RD')) return 'Restday';
-  if (dt === 'PH') return 'Holiday';
   if (s.includes('NITE')||s.includes('NIGHT')||s.includes('N2')) return 'Night';
   return 'Morning';
 }
