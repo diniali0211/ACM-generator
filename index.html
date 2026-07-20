@@ -329,7 +329,8 @@ function getLeave(code, dayType) {
   if (c === 'NPL') return 'Unpaid Leave';
   if (c === 'AL') return 'Annual Leave';
   if (dt === 'ABS') return 'Absent';
-  if (dt === 'PH') return 'Public Holiday';
+  // dayType can be compound, e.g. "PH/OD" or "PH/RD" — treat any PH-tagged day as a public holiday
+  if (dt === 'PH' || dt.includes('PH/') || dt.startsWith('PH')) return 'Public Holiday';
   // Unrecognized leave code — show it as-is instead of silently dropping it
   if (c) return c;
   return '';
